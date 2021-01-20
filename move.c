@@ -3,6 +3,8 @@
 //
 
 #include "move.h"
+#include "game.h"
+#include "dijkstra.h"
 
 
 /* ask for a move */
@@ -33,7 +35,42 @@ void askMove(t_move* move){
 
 }
 
-
+void chooseMove (t_move* move, t_game* game, t_board* board, int replay){
+	/* The first turn move must be a drawObjectives */
+	if (game->firstTurn == 1){
+		move->type = DRAW_OBJECTIVES;
+	}
+	else {
+		if (replay){
+			if (move->type == DRAW_OBJECTIVES){
+				move->type == CHOOSE_OBJECTIVES;
+				for (i=0; i<2; i++){
+					move->chooseObjectives.chosen[i] = 0;
+				}
+				move->chooseObjectives.nbObjectives = 0;
+				int i;
+				int wagonsNeeded = 0;
+				/*int index_max = 0
+				int max_points = game->players[game->player].latentObjectives[index_max].score; 
+				for (i=1; i<2; i++){
+					if (game->players[game->player].latentObjectives[i].score > max_points){
+						max_points = game->players[game->player].latentObjectives[i].score;
+						index_max = i;
+					}
+				}*/
+				t_tracks* objTracks[3];
+				for (i=0; i<2; i++){
+					objTracks[i] = board->tracks + (game->players[game->player].latentObjectives[i].city1 * board->nbCities + game->players[game->player].latentObjectives[i].city2) * sizeof(t_tracks*);
+					if (objTracks[i]->length <= (game->players[game->player].nbWagons - wagonsNeeded)){
+						move->chooseObjectives.chosen[index_max] = 1;
+						move->chooseObjectives.nbObjectives ++;
+						wagonsNeeded += objTracks[i]->length;
+					}
+				}
+			}
+		}
+	}
+}
 
 
 /* plays the move given as a parameter (send to the server)

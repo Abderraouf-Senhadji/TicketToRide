@@ -15,13 +15,14 @@ typedef struct{
 	int length;						/* length of the track */
 	t_color color1, color2;			/* colors */
 	int taken;						/* tell if taken */
+	int takenByUs;					/* boolean determining if a track is taken by Us or not*/
 } t_track;
 
 typedef struct s_board {
-	int  nbCities;							/* number of cities */
-	int  nbTracks;							/* number of tracks */
-	int* arrayTracks;						/* array of int for the tracks */
-	t_track** tracks;						/* pointer to the array of t_track pointers */
+	int  nbCities;					/* number of cities */
+	int  nbTracks;					/* number of tracks */
+	int* arrayTracks;				/* array of int for the tracks */
+	t_track** tracks;				/* pointer to the array of t_track pointers */
 } t_board;
 
 
@@ -35,6 +36,9 @@ typedef struct{
 	t_objective latentObjectives[3];/* objectives retured by the drawObjectives move */
 	t_track** pClaimedTrack;		
 	t_track** pClaimedTrackSymetric;
+	int** Prec; 					/* pointer to the array of the tracks for objectives */
+	t_track** objectiveTracks; 	
+	int** Dist;	
 } t_player;
 
 

@@ -2,35 +2,50 @@
 #include <stdlib.h>
 #include "TicketToRideAPI.h"
 #include "game.h"
+#include "dijkstra.h"
 
-//consider using general constants N for the number of tracks one for infinity
+#define INFINITY 50;
 
-void djikstra(int src, t_board* boardtracks, int* D, int* Prec){
+void dijkstra(int src, int dest, t_board* board, int* D, int* Prec){
 	int i,u,v;
+ 	int N = board->nbCities;
 	int visited [N];
-	for(i=0; i< N; i++){
-		D[i]=20;
-		visited[i]=0;
+	for(i=0; i < N; i++){
+		D[i] = INFINITY;
+		visited[i] = 0;
 	} 
-	D[src]=0;
-	for(i=0; i< N; i++){
-		u = minDistance(D,visited);
-		visited[u]=1;
+	printf("hu");
+	D[src] = 0;
+	while(u != dest){
+		u = minDistance(D,visited,N);
+		visited[u] = 1;
 		for(v=0; v < board->nbCities; v++){
-			// Chercher comment repérer une route prise par soi
-			if (visited[v]==0 && tracks[u][v]!=NULL)
-				&& (D[u] + tracks[u][v]->length) < D[v] 
-				&& tracks[u][v]->taken==0){
-				D[v] = D[u] + tracks[u][v]->length;
-				Prec[v] = u;
+			t_track* currentTrack = *(board->tracks + (( u* board->nbCities + v) * sizeof(t_track*)));
+			if (currentTrack != NULL){
+				if (currentTrack->taken == 0){
+					/* if the distance between src and any given non-visited city -which is not claimed by the opponent-
+					is shorter by passing through u, D[v] is updated to the new value */
+					if (visited[v]==0 && (D[u] + currentTrack->length) < D[v]){
+						D[v] = D[u] + currentTrack->length;
+						Prec[v] = u;
+					}
+				}
+				else{
+					/*if the track between u and v is already ours */
+					if (currentTrack->takenByUs){
+						D[v] = D[u];
+						Prec[v] = u;
+					}
+				}
 			}
 		}
 	}
+	printf("huhuhu");
 }
-
-int minDistance (int* D, int* visited){
+/* THis function return the closest non-visited city */
+int minDistance (int* D, int* visited, int N){
 	int i, min, min_index;
-	min=20;
+	min=INFINITY;
 	for (i=0; i < N; i++){
 		if (visited[i]==0 && D[i] < min){
 			min = D[i];
@@ -38,4 +53,16 @@ int minDistance (int* D, int* visited){
 		}
 	}
 	return min_index;
+}
+
+int displayRoute (int src, int dest, t_board* board, int* Prec, t_track* objectiveTracks){
+	int v = dest;
+	int numberTracks = 0;
+	while (v != src){
+		t_track* objTrk = objectiveTracks + numberTracks * sizeof(t_track*);
+		objTrk = *(board->tracks + (board->nbTracks * v + Prec[v]) * sizeof(t_track*));
+		v = Prec[v];
+		numberTracks++;
+	}
+	return numberTracks;
 }

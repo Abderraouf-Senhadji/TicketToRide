@@ -13,7 +13,7 @@ int main() {
 	t_color lastMove = NONE;	/* last Card taken we need to replay else NONE */
 	
 	/* connect to server */
-	connectToServer("li1417-56.members.linode.com", 5678, "TEST");
+	connectToServer("li1417-56.members.linode.com", 1234, "TEST");
 
 	/* intialize a game */
 	initGame(&game, &board);
@@ -34,6 +34,7 @@ int main() {
 		else {
 			/* we play */
 			askMove(&move);
+			//choooseMove(&move, &game);
 			replay = needReplay(&move, lastMove);
 			retCode = playOurMove(&move, &lastMove);
 			// update game
